@@ -1,7 +1,9 @@
 # Entropy- and Distance-Based Predictors From GPT-2 Attention Patterns Predict Reading Times Over and Above GPT-2 Surprisal
 
 ## Introduction
-This is the code repository for the paper [Entropy- and Distance-Based Predictors From GPT-2 Attention Patterns Predict Reading Times Over and Above GPT-2 Surprisal](https://byungdoh.github.io/pdf/emnlp22_attndist.pdf), including a modified version of the [HuggingFace Transformers](https://huggingface.co/docs/transformers/index) repository for calculating by-word predictors from the attention patterns of the GPT-2 language model. This repository also includes predictors calculated on the Natural Stories (Futrell et al., 2021) and Dundee (Kennedy et al., 2003) corpora, which were used in this work.
+This is the code repository for the paper [Entropy- and Distance-Based Predictors From GPT-2 Attention Patterns Predict Reading Times Over and Above GPT-2 Surprisal](https://byungdoh.github.io/pdf/emnlp22_attndist.pdf), including a modified version of the [HuggingFace Transformers](https://huggingface.co/docs/transformers/index) repository with a version of GPT-2 that returns decomposed representations after multi-head self-attention (Kobayashi et al., 2020, 2021).
+By-word predictors of processing difficulty defined in this work are calculated from the norms of these representations as well as self-attention weights.
+This repository also includes predictors calculated on the Natural Stories (Futrell et al., 2021) and Dundee (Kennedy et al., 2003) corpora, which were used in this work.
 
 ## Setup
 1) Install the following major dependencies:
@@ -41,16 +43,16 @@ the 6.445421829819679 9.502938449382782 9.418984770774841 1.0398754626512527 0.9
 ```
 
 ## Predictors on Reading Time Corpora
-The `data` directory contains the predictors calculated on the Natural Stories self-paced reading corpus and the Dundee eye-tracking corpus, which were used in the regression experiments.
+The `data` directory contains the predictors calculated on the Natural Stories self-paced reading corpus and the Dundee eye-tracking corpus, which were used in the regression experiments of this work.
 
 ## Additional Remarks
-1) The by-word predictors are calculated by *aggregating* the by-head predictors from the *topmost* layer of GPT-2. To examine the individual by-head predictors, the `calc_*` functions can be edited to maintain the individual by-head predictors. For computational efficiency, the `Attn-N` and `AttnRL-N` representations are only calculated at the topmost layer. This can be modified in Line 920 of `huggingface/src/transformers/models/gpt2/modeling_gpt2.py`:
+1) The modified GPT-2 model returns the raw `Attn-N` and `AttnRL-N` representations as `projected_states` and `resln_states` respectively, which can be further examined.
+2) The by-word predictors are calculated by *aggregating* the by-head predictors from the *topmost* layer of GPT-2. To examine the individual by-head predictors, the `calc_*` functions can be edited to maintain the individual by-head predictors. For computational efficiency, the `Attn-N` and `AttnRL-N` representations are only calculated at the topmost layer. This can be modified in Line 920 of `huggingface/src/transformers/models/gpt2/modeling_gpt2.py`:
 ```
 # currently hacked to output transforms at last layer only
 output_transforms = (i == self.config.num_hidden_layers-1)
 ```
-2) Although it hasn't been tested, the larger variants of GPT-2 (i.e. `gpt2-medium`, `gpt2-large`, `gpt2-xl`) should also be supported. However, this may be computationally infeasible for long input sequences.
-3) The modified GPT-2 model returns the raw `Attn-N` and `AttnRL-N` representations as `projected_states` and `resln_states` respectively, which can be further examined.
+3) Although it hasn't been tested, the larger variants of GPT-2 (i.e. `gpt2-medium`, `gpt2-large`, `gpt2-xl`) should also be supported. However, this may be computationally infeasible for long input sequences.
 
 ## Questions
 For questions or concerns, please contact Byung-Doh Oh ([oh.531@osu.edu](mailto:oh.531@osu.edu)).
