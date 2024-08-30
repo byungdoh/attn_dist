@@ -1,6 +1,6 @@
 import os, sys, torch, transformers
 import numpy as np
-from transformers import GPT2Tokenizer, GPT2Model
+from transformers import AutoTokenizer, AutoModel
 from scipy.stats import wasserstein_distance
 from scipy.spatial import distance
 from scipy.spatial import distance_matrix
@@ -109,8 +109,8 @@ def main():
              "manhattanw", "manhattann", "manhattanr", "emdw", "emdn", "emdr"]
     print(" ".join(preds))
     stories = generate_stories(sys.argv[1])
-    tokenizer = GPT2Tokenizer.from_pretrained(sys.argv[2])
-    model = GPT2Model.from_pretrained(sys.argv[2], output_attentions=True)
+    tokenizer = AutoTokenizer.from_pretrained(sys.argv[2])
+    model = AutoModel.from_pretrained(sys.argv[2], output_attentions=True)
     model.eval()
     ctx_size = model.config.n_ctx
     bos_id = model.config.bos_token_id
@@ -138,7 +138,6 @@ def main():
 
     curr_word_ix = 0
     curr_word_vals = [0] * 12
-    curr_word = ""
 
     for batch in batches:
         batch_input, start_idx = batch
@@ -176,6 +175,7 @@ def main():
         emdr = calc_norm_emd(norm_resln)
 
         # MAIN LOOP
+        curr_toks = []
         for i in range(start_idx, len(toks)):
             curr_tok_vals = []
             for j in [normentw, normentn, normentr, deltaentw, deltaentn, deltaentr,
@@ -186,14 +186,13 @@ def main():
             curr_word_vals = [sum(x) for x in zip(curr_word_vals, curr_tok_vals)]
 
             # concatenate tokens together for multiple-token words
-            curr_tok = toks[i].replace("Ġ", "", 1).encode("latin-1").decode("utf-8")
-            curr_word += curr_tok
-            words[curr_word_ix] = words[curr_word_ix].replace(curr_tok, "", 1)
+            curr_toks += [toks[i]]
+            curr_toks_str = tokenizer.convert_tokens_to_string(curr_toks)
 
-            if words[curr_word_ix] == "":
-                print(curr_word + " " + " ".join([str(val) for val in curr_word_vals]))
+            if words[curr_word_ix] == curr_toks_str.strip():
+                print(curr_toks_str.strip() + " " + " ".join([str(val) for val in curr_word_vals]))
                 curr_word_vals = [0] * 12
-                curr_word = ""
+                curr_toks = []
                 curr_word_ix += 1
 
 

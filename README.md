@@ -7,8 +7,10 @@ This repository also includes predictors calculated on the Natural Stories (Futr
 
 ## Setup
 1) Install the following major dependencies:
-- [PyTorch](https://pytorch.org)
-- [scipy](https://scipy.org)
+- [PyTorch](https://pytorch.org) (v3.10.14 tested in Aug. 2024)
+- [scipy](https://scipy.org) (v1.14.1 tested in Aug. 2024)
+- [numpy](https://numpy.org) (v1.26.4 tested in Aug. 2024)
+
 2) Install the modified version of the Transformers repository using these commands:
 ```
 cd huggingface

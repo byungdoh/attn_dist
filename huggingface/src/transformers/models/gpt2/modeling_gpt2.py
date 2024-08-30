@@ -917,8 +917,8 @@ class GPT2Model(GPT2PreTrainedModel):
         for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
 
             # currently hacked to output transforms at last layer only
-            output_transforms = (i == self.config.num_hidden_layers-1)
-            # output_transforms = True
+            # output_transforms = (i == self.config.num_hidden_layers-1)
+            output_transforms = True
 
             # Model parallel
             if self.model_parallel:
